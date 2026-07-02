@@ -1,16 +1,22 @@
+import { SiteHeader } from "@/components/site-header"
+import { Hero } from "@/components/hero"
+import { DualFramework } from "@/components/dual-framework"
+import { WhatIBuild } from "@/components/what-i-build"
+import { FeaturedWork } from "@/components/featured-work"
+import { Closing, SiteFooter } from "@/components/closing"
+
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center font-sans">
-      <main className="flex w-full max-w-3xl flex-col items-center gap-8 px-6 py-16 text-center sm:items-start sm:text-left">
-        <div className="flex flex-col gap-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Portfolio
-          </h1>
-          <p className="max-w-md text-lg text-muted-foreground">
-            To get started, send a prompt or modify this page directly.
-          </p>
-        </div>
+    <div className="min-h-screen bg-background font-sans">
+      <SiteHeader />
+      <main>
+        <Hero />
+        <DualFramework />
+        <WhatIBuild />
+        <FeaturedWork />
+        <Closing />
       </main>
+      <SiteFooter />
     </div>
-  );
+  )
 }
