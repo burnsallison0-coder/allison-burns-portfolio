@@ -4,6 +4,7 @@ export function SiteHeader() {
     { label: "What I build", href: "/#build" },
     { label: "Work", href: "/#work" },
     { label: "Experience", href: "/experience" },
+    { label: "Experiments", href: "/experiments" },
   ]
 
   return (
