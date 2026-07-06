@@ -5,6 +5,7 @@ export function SiteHeader() {
     { label: "Work", href: "/#work" },
     { label: "Experience", href: "/experience" },
     { label: "Experiments", href: "/experiments" },
+    { label: "Reflections", href: "/reflections" },
   ]
 
   return (
