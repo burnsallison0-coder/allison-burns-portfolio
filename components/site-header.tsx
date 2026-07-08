@@ -1,9 +1,6 @@
 export function SiteHeader() {
   const links = [
-    { label: "Frameworks", href: "/#frameworks" },
-    { label: "What I build", href: "/#build" },
-    { label: "Work", href: "/#work" },
-    { label: "Experience", href: "/experience" },
+    { label: "Case Studies", href: "/experience" },
     { label: "Experiments", href: "/experiments" },
     { label: "Reflections", href: "/reflections" },
     { label: "About", href: "/about" },
@@ -14,7 +11,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a href="/" className="flex items-center gap-2 font-serif text-lg tracking-tight">
           <span className="inline-block h-2 w-2 rounded-full bg-ring" aria-hidden="true" />
-          <span>Cognition&nbsp;/&nbsp;Craft</span>
+          <span>Allison Burns</span>
         </a>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
           {links.map((link) => (
@@ -28,10 +25,10 @@ export function SiteHeader() {
           ))}
         </nav>
         <a
-          href="/#work"
+          href="/experience"
           className="rounded-full border border-border px-4 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
         >
-          View work
+          Case Studies
         </a>
       </div>
     </header>

@@ -1,77 +1,43 @@
+import Image from "next/image"
+
 export function Hero() {
   return (
     <section id="top" className="relative overflow-hidden">
-      {/* Minimal neural-network background */}
-      <NeuralBackdrop />
+      {/* Soft, understated warm glow — no dominant graphics */}
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+        <div className="absolute right-[-10%] top-[-10%] h-[55%] w-[55%] rounded-full bg-accent/30 blur-[140px]" />
+      </div>
 
-      <div className="mx-auto max-w-6xl px-6 pb-24 pt-24 md:pt-36">
-        <div className="max-w-3xl">
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            AI Product Manager
-          </p>
-          <h1 className="text-balance font-serif text-4xl leading-[1.05] tracking-tight text-foreground md:text-6xl lg:text-7xl">
-            Designing AI products around human cognition and behavior
-          </h1>
-          <p className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-            AI Product Manager building consumer AI, AI infrastructure, and agentic workflows inspired by the way people
-            think and behave.
-          </p>
+      <div className="mx-auto max-w-6xl px-6 pb-28 pt-24 md:pb-40 md:pt-40">
+        <div className="grid items-center gap-14 md:grid-cols-[1.15fr_0.85fr] md:gap-16 lg:gap-24">
+          {/* Copy */}
+          <div className="max-w-xl">
+            <p className="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              AI Product Manager
+            </p>
+            <h1 className="text-balance font-serif text-4xl leading-[1.05] tracking-tight text-foreground md:text-5xl lg:text-6xl">
+              Great AI products begin with understanding how people think.
+            </h1>
+            <p className="mt-8 text-pretty text-lg leading-relaxed text-muted-foreground">
+              Building consumer AI, AI infrastructure, and agentic systems.
+            </p>
+          </div>
+
+          {/* Headshot */}
+          <div className="relative mx-auto w-full max-w-sm md:mx-0">
+            <div className="overflow-hidden rounded-2xl border border-border bg-card">
+              <Image
+                src="/allison-burns.jpg"
+                alt="Allison Burns, AI Product Manager"
+                width={800}
+                height={1000}
+                priority
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>
-  )
-}
-
-function NeuralBackdrop() {
-  const nodes = [
-    { x: 12, y: 30 },
-    { x: 30, y: 18 },
-    { x: 48, y: 40 },
-    { x: 68, y: 22 },
-    { x: 84, y: 48 },
-    { x: 24, y: 62 },
-    { x: 58, y: 70 },
-    { x: 80, y: 78 },
-    { x: 40, y: 88 },
-  ]
-  const edges = [
-    [0, 1],
-    [1, 2],
-    [2, 3],
-    [3, 4],
-    [0, 5],
-    [5, 6],
-    [2, 6],
-    [6, 7],
-    [4, 7],
-    [5, 8],
-    [6, 8],
-  ]
-
-  return (
-    <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-      <div className="absolute right-0 top-0 h-[60%] w-[60%] rounded-full bg-accent/40 blur-[120px]" />
-      <svg
-        className="absolute inset-0 h-full w-full opacity-[0.5]"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        {edges.map(([a, b], i) => (
-          <line
-            key={i}
-            x1={nodes[a].x}
-            y1={nodes[a].y}
-            x2={nodes[b].x}
-            y2={nodes[b].y}
-            stroke="currentColor"
-            strokeWidth="0.12"
-            className="text-ring"
-          />
-        ))}
-        {nodes.map((n, i) => (
-          <circle key={i} cx={n.x} cy={n.y} r="0.5" className="fill-ring" />
-        ))}
-      </svg>
-    </div>
   )
 }
