@@ -129,7 +129,7 @@ export function SecondBrainMap() {
 /* 03 — Conceptual systems diagram (vertical flow) */
 export function EmotionalAwarenessDiagram() {
   const layers = [
-    { label: "Biometrics", note: "heart rate · signals", tone: "muted" },
+    { label: "Biometrics", note: "heart rate · temperature", tone: "muted" },
     { label: "Context Layer", note: "interprets state", tone: "muted" },
     { label: "LLM", note: "reasoning", tone: "accent" },
     { label: "Adaptive Conversation", note: "responds with care", tone: "muted" },
