@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { Plus } from "lucide-react"
 
@@ -95,6 +95,19 @@ export function ExperienceTimeline() {
   const requested = searchParams.get("company")
   const matched = companies.find((c) => c.company.toLowerCase() === requested?.toLowerCase())?.company
   const [open, setOpen] = useState<string | null>(matched ?? companies[0].company)
+  const articleRefs = useRef<Record<string, HTMLElement | null>>({})
+
+  useEffect(() => {
+    if (!matched) return
+    const el = articleRefs.current[matched]
+    if (!el) return
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    // Wait for the expand transition to begin so the target position is accurate.
+    const timer = window.setTimeout(() => {
+      el.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" })
+    }, 100)
+    return () => window.clearTimeout(timer)
+  }, [matched])
 
   return (
     <div className="flex flex-col">
@@ -103,7 +116,13 @@ export function ExperienceTimeline() {
         const panelId = `chapter-${c.company.replace(/[^a-z0-9]/gi, "").toLowerCase()}`
         const chapterNumber = String(i + 1).padStart(2, "0")
         return (
-          <article key={c.company} className={i !== 0 ? "border-t border-border" : ""}>
+          <article
+            key={c.company}
+            ref={(el) => {
+              articleRefs.current[c.company] = el
+            }}
+            className={`scroll-mt-24 ${i !== 0 ? "border-t border-border" : ""}`}
+          >
             <button
               type="button"
               onClick={() => setOpen(isOpen ? null : c.company)}
