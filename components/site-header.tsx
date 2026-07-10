@@ -2,7 +2,7 @@ export function SiteHeader() {
   const links = [
     { label: "Case Studies", href: "/experience" },
     { label: "Explorations", href: "/explorations" },
-    { label: "Reflections", href: "/reflections" },
+    { label: "Talks", href: "/talks" },
     { label: "About", href: "/about" },
   ]
 
