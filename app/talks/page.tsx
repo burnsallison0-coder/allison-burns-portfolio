@@ -14,7 +14,7 @@ export default function TalksPage() {
       <SiteHeader />
 
       <section>
-        <div className="mx-auto max-w-3xl px-6 py-[4.8rem] md:py-[7.2rem]">
+        <div className="mx-auto max-w-3xl px-6 py-16 md:py-28">
           <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">Talks</p>
           <h1 className="text-balance font-serif text-4xl leading-[1.08] tracking-tight text-foreground md:text-6xl">
             Ideas worth sharing

@@ -15,7 +15,7 @@ export default function ExperiencePage() {
       <SiteHeader />
 
       <section>
-        <div className="mx-auto max-w-3xl px-6 py-[5.5rem] md:py-[8.25rem]">
+        <div className="mx-auto max-w-3xl px-6 py-16 md:py-28">
           <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">Case Studies</p>
           <h1 className="text-balance font-serif text-4xl leading-[1.08] tracking-tight text-foreground md:text-6xl">
             How my product philosophy evolved.

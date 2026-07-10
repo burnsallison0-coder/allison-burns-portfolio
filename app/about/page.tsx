@@ -44,7 +44,7 @@ export default function AboutPage() {
     <main id="top" className="min-h-screen bg-background text-foreground">
       <SiteHeader />
 
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-28">
         <div className="grid gap-16 md:grid-cols-[1.35fr_1fr] md:gap-20 lg:gap-24">
           {/* LEFT COLUMN — the story of how the thinking evolved */}
           <div className="flex flex-col">

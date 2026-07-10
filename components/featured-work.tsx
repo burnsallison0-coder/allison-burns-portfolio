@@ -24,7 +24,7 @@ const chapters = [
 export function FeaturedWork() {
   return (
     <section id="work" className="border-t border-border">
-      <div className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+      <div className="mx-auto max-w-5xl px-6 py-16 md:py-28">
         <div className="mb-16 max-w-2xl md:mb-20">
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">
             The Framework in Practice

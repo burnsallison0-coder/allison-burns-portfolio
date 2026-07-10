@@ -8,7 +8,7 @@ export function Hero() {
         <div className="absolute right-[-10%] top-[-10%] h-[55%] w-[55%] rounded-full bg-accent/30 blur-[140px]" />
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 pb-28 pt-24 md:pb-40 md:pt-40">
+      <div className="mx-auto max-w-6xl px-6 pb-16 pt-16 md:pb-32 md:pt-32">
         <div className="grid items-center gap-14 md:grid-cols-[1.15fr_0.85fr] md:gap-16 lg:gap-24">
           {/* Copy */}
           <div className="max-w-xl">

@@ -1,7 +1,7 @@
 export function Closing() {
   return (
     <section className="border-t border-border">
-      <div className="mx-auto max-w-4xl px-6 py-28 text-center md:py-44">
+      <div className="mx-auto max-w-4xl px-6 py-20 text-center md:py-36">
         <p className="mb-8 text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">The thesis</p>
         <p className="text-balance font-serif text-3xl leading-[1.2] tracking-tight text-foreground md:text-5xl md:leading-[1.15]">
           I design AI systems and products by modeling cognition and behavior as complementary layers.

@@ -113,16 +113,16 @@ function TextColumn({ item }: { item: Exploration }) {
 
 export function ExplorationsFeature() {
   return (
-    <div className="flex flex-col gap-24 md:gap-36">
+    <div className="flex flex-col gap-16 md:gap-36">
       {explorations.map((item, i) => {
         const visualLeft = i % 2 === 1 // Card 2 & 4 → visual left
         return (
           <Reveal as="section" key={item.index}>
             <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-              <div className={visualLeft ? "md:order-2" : "md:order-1"}>
+              <div className={`min-w-0 ${visualLeft ? "md:order-2" : "md:order-1"}`}>
                 <TextColumn item={item} />
               </div>
-              <div className={visualLeft ? "md:order-1" : "md:order-2"}>{item.artifact}</div>
+              <div className={`min-w-0 ${visualLeft ? "md:order-1" : "md:order-2"}`}>{item.artifact}</div>
             </div>
           </Reveal>
         )

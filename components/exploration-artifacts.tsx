@@ -109,7 +109,7 @@ export function SecondBrainMap() {
           {folders.map((f) => (
             <li
               key={f.name}
-              className="flex items-center justify-between px-4 py-2 transition-colors hover:bg-secondary/60"
+              className="flex flex-col gap-1 px-4 py-2.5 transition-colors hover:bg-secondary/60 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-2"
             >
               <span className="flex items-center gap-2.5">
                 <span aria-hidden="true" className="text-sm text-accent-foreground">
@@ -117,7 +117,9 @@ export function SecondBrainMap() {
                 </span>
                 <span className="font-medium text-foreground">{f.name}</span>
               </span>
-              <span className="font-mono text-[0.65rem] text-muted-foreground">{f.note}</span>
+              <span className="pl-6 font-mono text-[0.65rem] leading-relaxed text-muted-foreground sm:pl-0 sm:text-right">
+                {f.note}
+              </span>
             </li>
           ))}
         </ul>

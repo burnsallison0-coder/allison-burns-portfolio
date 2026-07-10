@@ -4,7 +4,7 @@ const userJourney = ["Pre-task", "Task", "Post-task"]
 export function DualFramework() {
   return (
     <section id="frameworks" className="border-y border-border bg-secondary/40">
-      <div className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+      <div className="mx-auto max-w-5xl px-6 py-16 md:py-28">
         <div className="mx-auto mb-16 max-w-2xl text-center md:mb-20">
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">The framework</p>
           <h2 className="text-balance font-serif text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
