@@ -8,7 +8,7 @@ export function Closing() {
         </p>
         <div className="mt-14 flex flex-wrap items-center justify-center gap-4">
           <a
-            href="mailto:hello@example.com"
+            href="/about"
             className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             Get in touch

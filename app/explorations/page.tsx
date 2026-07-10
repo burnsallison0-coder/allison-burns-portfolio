@@ -14,7 +14,7 @@ export default function ExplorationsPage() {
       <SiteHeader />
 
       <section>
-        <div className="mx-auto max-w-3xl px-6 py-24 md:py-36">
+        <div className="mx-auto max-w-3xl px-6 py-[5.1rem] md:py-[7.65rem]">
           <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">Explorations</p>
           <h1 className="text-balance font-serif text-4xl leading-[1.08] tracking-tight text-foreground md:text-6xl">
             Becoming AI Native

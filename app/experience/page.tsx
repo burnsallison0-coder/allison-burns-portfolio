@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { SiteHeader } from "@/components/site-header"
 import { ExperienceTimeline } from "@/components/experience-timeline"
 
@@ -14,7 +15,7 @@ export default function ExperiencePage() {
       <SiteHeader />
 
       <section>
-        <div className="mx-auto max-w-3xl px-6 py-24 md:py-36">
+        <div className="mx-auto max-w-3xl px-6 py-[5.5rem] md:py-[8.25rem]">
           <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">Case Studies</p>
           <h1 className="text-balance font-serif text-4xl leading-[1.08] tracking-tight text-foreground md:text-6xl">
             How my product philosophy evolved.
@@ -33,7 +34,9 @@ export default function ExperiencePage() {
       </section>
 
       <section className="mx-auto max-w-3xl px-6 pb-12">
-        <ExperienceTimeline />
+        <Suspense fallback={null}>
+          <ExperienceTimeline />
+        </Suspense>
       </section>
 
       <footer className="border-t border-border">

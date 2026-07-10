@@ -29,10 +29,9 @@ const chapters = [
 ]
 
 const socials = [
-  { label: "LinkedIn", href: "https://www.linkedin.com" },
-  { label: "TikTok", href: "https://www.tiktok.com" },
-  { label: "Instagram", href: "https://www.instagram.com" },
-  { label: "Email", href: "mailto:hello@example.com" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/allison-burns-9894baa6/" },
+  { label: "TikTok", href: "https://www.tiktok.com/@allisonburns52" },
+  { label: "Email", href: "mailto:burns.allison0@gmail.com" },
 ]
 
 const details = [
@@ -80,7 +79,7 @@ export default function AboutPage() {
               <Reveal>
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">The journey</p>
                 <p className="mt-4 max-w-md text-pretty text-base leading-relaxed text-muted-foreground">
-                  Three chapters in one evolving philosophy — each expanding the same idea rather than replacing it.
+                  Three chapters in one evolving philosophy, each expanding the same idea rather than replacing it.
                 </p>
               </Reveal>
               <ol className="relative mt-12 grid gap-8 sm:grid-cols-3 sm:gap-5">

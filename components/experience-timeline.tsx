@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { Plus } from "lucide-react"
 
 type Company = {
@@ -16,7 +17,7 @@ type Company = {
 const companies: Company[] = [
   {
     company: "Meta",
-    years: "2023 — 2025",
+    years: "2025 — 2026",
     category: "Global Compliance Infrastructure",
     headline: "Where AI stopped being the product and became the way I work.",
     overview:
@@ -30,7 +31,7 @@ const companies: Company[] = [
   },
   {
     company: "The Home Depot",
-    years: "2021 — 2023",
+    years: "2024 — 2025",
     category: "Generative AI Shopping Assistant",
     headline: "Where I first designed the AI and the product in parallel.",
     overview:
@@ -44,7 +45,7 @@ const companies: Company[] = [
   },
   {
     company: "Walmart",
-    years: "2019 — 2021",
+    years: "2022 — 2024",
     category: "AI Developer Platform",
     headline: "Where I questioned how AI products should be defined.",
     overview:
@@ -60,8 +61,8 @@ const companies: Company[] = [
   },
   {
     company: "Aedit",
-    years: "2018 — 2019",
-    category: "AI Consumer Health & Simulation",
+    years: "2021 — 2022",
+    category: "Plastic Surgery Simulation",
     headline: "Where I realized intelligence alone isn't enough. People have to trust it.",
     overview:
       "I scaled AI-powered consumer experiences that simulated personalized plastic surgery consultations through facial analysis and surgical outcome prediction. The goal was not simply to generate predictions. It was to help people feel informed and confident while considering deeply personal, life-changing decisions.",
@@ -74,8 +75,8 @@ const companies: Company[] = [
   },
   {
     company: "Macy's",
-    years: "2016 — 2018",
-    category: "Emerging AI & Immersive Retail",
+    years: "2018 — 2021",
+    category: "Immersive Shopping Experiences",
     headline: "Where I understood technology doesn't drive adoption. Pain does.",
     overview:
       "I led product strategy for emerging AI and immersive shopping experiences within Macy's Innovation Lab, exploring how new technologies could improve online shopping. Through rapid prototyping and experimentation, I learned that successful product innovation depends as much on understanding human behavior as it does on advancing technology.",
@@ -90,7 +91,10 @@ const companies: Company[] = [
 ]
 
 export function ExperienceTimeline() {
-  const [open, setOpen] = useState<string | null>(companies[0].company)
+  const searchParams = useSearchParams()
+  const requested = searchParams.get("company")
+  const matched = companies.find((c) => c.company.toLowerCase() === requested?.toLowerCase())?.company
+  const [open, setOpen] = useState<string | null>(matched ?? companies[0].company)
 
   return (
     <div className="flex flex-col">

@@ -27,7 +27,7 @@ export function Hero() {
           <div className="relative mx-auto w-full max-w-sm md:mx-0">
             <div className="overflow-hidden rounded-2xl border border-border bg-card">
               <Image
-                src="/allison-burns.jpg"
+                src="/allison-2026.png"
                 alt="Allison Burns, AI Product Manager"
                 width={800}
                 height={1000}

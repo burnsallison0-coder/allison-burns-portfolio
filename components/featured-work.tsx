@@ -38,7 +38,7 @@ export function FeaturedWork() {
           {chapters.map((item, i) => (
             <a
               key={item.company}
-              href="/experience"
+              href={`/experience?company=${encodeURIComponent(item.company)}`}
               className={`group grid gap-4 py-10 transition-colors md:grid-cols-[0.9fr_1.6fr] md:gap-12 md:py-14 ${
                 i !== 0 ? "border-t border-border" : ""
               }`}
