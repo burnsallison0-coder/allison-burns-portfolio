@@ -96,18 +96,48 @@ export function ExperienceTimeline() {
   const matched = companies.find((c) => c.company.toLowerCase() === requested?.toLowerCase())?.company
   const [open, setOpen] = useState<string | null>(matched ?? companies[0].company)
   const articleRefs = useRef<Record<string, HTMLElement | null>>({})
+  const scrollTimer = useRef<number | undefined>(undefined)
+
+  // Matches the `scroll-mt-24` offset below and keeps the chapter clear of the sticky header.
+  const HEADER_OFFSET = 96
+
+  // Align the top of a chapter with the top of the viewport (below the sticky header),
+  // but only when scrolling is actually needed. If the chapter is already fully visible,
+  // or its top is already aligned, do nothing.
+  const alignChapterTop = (company: string) => {
+    const el = articleRefs.current[company]
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const viewportHeight = window.innerHeight
+    const fullyVisible = rect.top >= HEADER_OFFSET - 2 && rect.bottom <= viewportHeight + 2
+    if (fullyVisible) return
+    // Top already sits at the aligned position and nothing more needs revealing above it.
+    if (rect.top >= HEADER_OFFSET - 2 && rect.top <= HEADER_OFFSET + 2) return
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    window.scrollTo({
+      top: window.scrollY + rect.top - HEADER_OFFSET,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    })
+  }
+
+  const handleToggle = (company: string, isOpen: boolean) => {
+    setOpen(isOpen ? null : company)
+    window.clearTimeout(scrollTimer.current)
+    // When opening, wait for the expand/collapse animation to settle so positions are accurate.
+    if (!isOpen) {
+      scrollTimer.current = window.setTimeout(() => alignChapterTop(company), 520)
+    }
+  }
 
   useEffect(() => {
     if (!matched) return
-    const el = articleRefs.current[matched]
-    if (!el) return
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    // Wait for the expand transition to begin so the target position is accurate.
-    const timer = window.setTimeout(() => {
-      el.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" })
-    }, 100)
+    // The matched chapter renders already expanded on mount (no animation), so a short delay is enough.
+    const timer = window.setTimeout(() => alignChapterTop(matched), 100)
     return () => window.clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matched])
+
+  useEffect(() => () => window.clearTimeout(scrollTimer.current), [])
 
   return (
     <div className="flex flex-col">
@@ -125,7 +155,7 @@ export function ExperienceTimeline() {
           >
             <button
               type="button"
-              onClick={() => setOpen(isOpen ? null : c.company)}
+              onClick={() => handleToggle(c.company, isOpen)}
               aria-expanded={isOpen}
               aria-controls={panelId}
               className="group flex w-full items-start gap-6 py-12 text-left md:gap-10 md:py-16"
