@@ -96,48 +96,85 @@ export function ExperienceTimeline() {
   const matched = companies.find((c) => c.company.toLowerCase() === requested?.toLowerCase())?.company
   const [open, setOpen] = useState<string | null>(matched ?? companies[0].company)
   const articleRefs = useRef<Record<string, HTMLElement | null>>({})
-  const scrollTimer = useRef<number | undefined>(undefined)
+  const rafId = useRef<number | undefined>(undefined)
 
   // Matches the `scroll-mt-24` offset below and keeps the chapter clear of the sticky header.
   const HEADER_OFFSET = 96
+  // Matches the 500ms grid-rows height transition below, plus a small buffer.
+  const EXPAND_DURATION = 520
 
-  // Align the top of a chapter with the top of the viewport (below the sticky header),
-  // but only when scrolling is actually needed. If the chapter is already fully visible,
-  // or its top is already aligned, do nothing.
-  const alignChapterTop = (company: string) => {
-    const el = articleRefs.current[company]
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const viewportHeight = window.innerHeight
-    const fullyVisible = rect.top >= HEADER_OFFSET - 2 && rect.bottom <= viewportHeight + 2
-    if (fullyVisible) return
-    // Top already sits at the aligned position and nothing more needs revealing above it.
-    if (rect.top >= HEADER_OFFSET - 2 && rect.top <= HEADER_OFFSET + 2) return
+  const stopPinning = () => {
+    if (rafId.current !== undefined) {
+      cancelAnimationFrame(rafId.current)
+      rafId.current = undefined
+    }
+  }
+
+  // Hold the clicked chapter header at a fixed viewport position for the duration of the
+  // expand/collapse animation. This compensates for the layout shift caused by a sibling
+  // chapter collapsing above it and overrides the browser's native scroll anchoring, so the
+  // view stays stable instead of drifting to the bottom of the new content and then snapping
+  // back up. No arbitrary post-animation scroll is used.
+  const pinChapter = (company: string, targetTop: number) => {
+    stopPinning()
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    window.scrollTo({
-      top: window.scrollY + rect.top - HEADER_OFFSET,
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-    })
+    const start = performance.now()
+    const step = () => {
+      const el = articleRefs.current[company]
+      if (!el) {
+        rafId.current = undefined
+        return
+      }
+      const delta = el.getBoundingClientRect().top - targetTop
+      if (Math.abs(delta) > 0.5) window.scrollBy(0, delta)
+      if (!prefersReducedMotion && performance.now() - start < EXPAND_DURATION) {
+        rafId.current = requestAnimationFrame(step)
+      } else {
+        rafId.current = undefined
+      }
+    }
+    rafId.current = requestAnimationFrame(step)
   }
 
   const handleToggle = (company: string, isOpen: boolean) => {
-    setOpen(isOpen ? null : company)
-    window.clearTimeout(scrollTimer.current)
-    // When opening, wait for the expand/collapse animation to settle so positions are accurate.
-    if (!isOpen) {
-      scrollTimer.current = window.setTimeout(() => alignChapterTop(company), 520)
+    stopPinning()
+    if (isOpen) {
+      // Collapsing the open chapter needs no scrolling.
+      setOpen(null)
+      return
     }
+    // Measure the header position *before* the state change so we can keep it steady.
+    const el = articleRefs.current[company]
+    const currentTop = el ? el.getBoundingClientRect().top : HEADER_OFFSET
+    // If the header is tucked under the sticky header (or above the viewport), align it just
+    // below the header. Otherwise keep it exactly where it is so the viewport does not move.
+    const targetTop = currentTop < HEADER_OFFSET ? HEADER_OFFSET : currentTop
+    setOpen(company)
+    pinChapter(company, targetTop)
   }
 
   useEffect(() => {
     if (!matched) return
-    // The matched chapter renders already expanded on mount (no animation), so a short delay is enough.
-    const timer = window.setTimeout(() => alignChapterTop(matched), 100)
-    return () => window.clearTimeout(timer)
+    const el = articleRefs.current[matched]
+    if (!el) return
+    // The deep-linked chapter renders already expanded on mount, so align it once after layout
+    // is committed (a single rAF, no arbitrary timer) and only when it is not already visible.
+    const raf = requestAnimationFrame(() => {
+      const rect = el.getBoundingClientRect()
+      const fullyVisible = rect.top >= HEADER_OFFSET - 2 && rect.bottom <= window.innerHeight + 2
+      const alreadyAligned = rect.top >= HEADER_OFFSET - 2 && rect.top <= HEADER_OFFSET + 2
+      if (fullyVisible || alreadyAligned) return
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.scrollTo({
+        top: window.scrollY + rect.top - HEADER_OFFSET,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      })
+    })
+    return () => cancelAnimationFrame(raf)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matched])
 
-  useEffect(() => () => window.clearTimeout(scrollTimer.current), [])
+  useEffect(() => stopPinning, [])
 
   return (
     <div className="flex flex-col">
