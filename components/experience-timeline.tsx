@@ -97,27 +97,36 @@ export function ExperienceTimeline() {
   const [open, setOpen] = useState<string | null>(matched ?? companies[0].company)
   const articleRefs = useRef<Record<string, HTMLElement | null>>({})
   const rafId = useRef<number | undefined>(undefined)
+  const timerId = useRef<number | undefined>(undefined)
 
   // Matches the `scroll-mt-24` offset below and keeps the chapter clear of the sticky header.
   const HEADER_OFFSET = 96
   // Matches the 500ms grid-rows height transition below, plus a small buffer.
   const EXPAND_DURATION = 520
 
-  const stopPinning = () => {
+  // Cancel any in-flight scroll work (desktop pin loop or mobile settle timer) before starting
+  // a new interaction or on unmount, so nothing keeps repositioning the viewport.
+  const cancelScroll = () => {
     if (rafId.current !== undefined) {
       cancelAnimationFrame(rafId.current)
       rafId.current = undefined
     }
+    if (timerId.current !== undefined) {
+      clearTimeout(timerId.current)
+      timerId.current = undefined
+    }
   }
 
-  // Hold the clicked chapter header at a fixed viewport position for the duration of the
-  // expand/collapse animation. This compensates for the layout shift caused by a sibling
-  // chapter collapsing above it and overrides the browser's native scroll anchoring, so the
-  // view stays stable instead of drifting to the bottom of the new content and then snapping
-  // back up. No arbitrary post-animation scroll is used.
+  const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  // Below Tailwind's `md` breakpoint we treat the layout as mobile (sticky header + touch scroll).
+  const isMobile = () => window.matchMedia("(max-width: 767px)").matches
+
+  // DESKTOP ONLY: hold the clicked chapter header at a fixed viewport position for the duration
+  // of the expand/collapse animation, compensating for a sibling chapter collapsing above it.
+  // This frame-by-frame correction is smooth with a mouse but fights touch scroll anchoring on
+  // mobile, which is why mobile uses a single post-settle alignment instead.
   const pinChapter = (company: string, targetTop: number) => {
-    stopPinning()
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const reduce = prefersReducedMotion()
     const start = performance.now()
     const step = () => {
       const el = articleRefs.current[company]
@@ -127,7 +136,7 @@ export function ExperienceTimeline() {
       }
       const delta = el.getBoundingClientRect().top - targetTop
       if (Math.abs(delta) > 0.5) window.scrollBy(0, delta)
-      if (!prefersReducedMotion && performance.now() - start < EXPAND_DURATION) {
+      if (!reduce && performance.now() - start < EXPAND_DURATION) {
         rafId.current = requestAnimationFrame(step)
       } else {
         rafId.current = undefined
@@ -136,14 +145,39 @@ export function ExperienceTimeline() {
     rafId.current = requestAnimationFrame(step)
   }
 
+  // MOBILE ONLY: perform exactly one smooth scroll adjustment AFTER the expansion layout has
+  // settled. No measuring or repositioning happens during the height animation, so the view
+  // never "chases" the growing chapter.
+  const alignAfterSettle = (company: string) => {
+    timerId.current = window.setTimeout(() => {
+      timerId.current = undefined
+      const el = articleRefs.current[company]
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      // Already aligned just below the sticky header — no movement needed.
+      if (rect.top >= HEADER_OFFSET - 2 && rect.top <= HEADER_OFFSET + 2) return
+      window.scrollTo({
+        top: window.scrollY + rect.top - HEADER_OFFSET,
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+      })
+    }, EXPAND_DURATION)
+  }
+
   const handleToggle = (company: string, isOpen: boolean) => {
-    stopPinning()
+    // Selecting another chapter cancels any pending scroll work from the previous interaction.
+    cancelScroll()
     if (isOpen) {
       // Collapsing the open chapter needs no scrolling.
       setOpen(null)
       return
     }
-    // Measure the header position *before* the state change so we can keep it steady.
+    if (isMobile()) {
+      // One mechanism only: expand, let it settle, then a single alignment.
+      setOpen(company)
+      alignAfterSettle(company)
+      return
+    }
+    // Desktop: measure the header position *before* the state change so we can keep it steady.
     const el = articleRefs.current[company]
     const currentTop = el ? el.getBoundingClientRect().top : HEADER_OFFSET
     // If the header is tucked under the sticky header (or above the viewport), align it just
@@ -164,17 +198,16 @@ export function ExperienceTimeline() {
       const fullyVisible = rect.top >= HEADER_OFFSET - 2 && rect.bottom <= window.innerHeight + 2
       const alreadyAligned = rect.top >= HEADER_OFFSET - 2 && rect.top <= HEADER_OFFSET + 2
       if (fullyVisible || alreadyAligned) return
-      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
       window.scrollTo({
         top: window.scrollY + rect.top - HEADER_OFFSET,
-        behavior: prefersReducedMotion ? "auto" : "smooth",
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
       })
     })
     return () => cancelAnimationFrame(raf)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matched])
 
-  useEffect(() => stopPinning, [])
+  useEffect(() => cancelScroll, [])
 
   return (
     <div className="flex flex-col">
