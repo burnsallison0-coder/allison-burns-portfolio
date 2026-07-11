@@ -98,6 +98,8 @@ export function ExperienceTimeline() {
   const articleRefs = useRef<Record<string, HTMLElement | null>>({})
   const rafId = useRef<number | undefined>(undefined)
   const timerId = useRef<number | undefined>(undefined)
+  // Removes the active mobile transitionend listener (set when a correction is pending).
+  const cleanupListener = useRef<(() => void) | undefined>(undefined)
 
   // Matches the `scroll-mt-24` offset below and keeps the chapter clear of the sticky header.
   const HEADER_OFFSET = 96
@@ -114,6 +116,10 @@ export function ExperienceTimeline() {
     if (timerId.current !== undefined) {
       clearTimeout(timerId.current)
       timerId.current = undefined
+    }
+    if (cleanupListener.current) {
+      cleanupListener.current()
+      cleanupListener.current = undefined
     }
   }
 
@@ -145,22 +151,50 @@ export function ExperienceTimeline() {
     rafId.current = requestAnimationFrame(step)
   }
 
-  // MOBILE ONLY: perform exactly one smooth scroll adjustment AFTER the expansion layout has
-  // settled. No measuring or repositioning happens during the height animation, so the view
-  // never "chases" the growing chapter.
-  const alignAfterSettle = (company: string) => {
-    timerId.current = window.setTimeout(() => {
-      timerId.current = undefined
-      const el = articleRefs.current[company]
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      // Already aligned just below the sticky header — no movement needed.
-      if (rect.top >= HEADER_OFFSET - 2 && rect.top <= HEADER_OFFSET + 2) return
-      window.scrollTo({
-        top: window.scrollY + rect.top - HEADER_OFFSET,
-        behavior: prefersReducedMotion() ? "auto" : "smooth",
-      })
-    }, EXPAND_DURATION)
+  // MOBILE ONLY: keep the tapped header visually stable while the chapter expands.
+  //
+  // The initial downward "jump" was caused by the browser's CSS scroll anchoring: as the panel
+  // grows, the browser picks an anchor node below the insertion point and scrolls down to keep
+  // it in view. We suppress that entirely via `overflow-anchor: none` on the timeline container
+  // (mobile only), so the header does not move during the animation. The only residual shift is
+  // when a previously-open sibling collapses above the tapped chapter — for that we apply ONE
+  // corrective `scrollBy` after the expansion transition ends (with a timeout fallback), sized
+  // to restore the header to where it was tapped (or just below the sticky header if it was
+  // tucked underneath it). No per-frame tracking and no second independent scroll.
+  const alignAfterExpand = (company: string, originalTop: number) => {
+    const article = articleRefs.current[company]
+    if (!article) return
+    const panel = article.querySelector<HTMLElement>("[data-chapter-panel]")
+    // If the header sat under the sticky header, settle it just below; otherwise leave it exactly
+    // where the user tapped so the view feels anchored to their touch point.
+    const targetTop = originalTop < HEADER_OFFSET ? HEADER_OFFSET : originalTop
+
+    const correct = () => {
+      cleanupListener.current?.()
+      cleanupListener.current = undefined
+      const finalTop = article.getBoundingClientRect().top
+      const delta = finalTop - targetTop
+      if (Math.abs(delta) > 1) {
+        window.scrollBy({ top: delta, behavior: prefersReducedMotion() ? "auto" : "smooth" })
+      }
+    }
+
+    const onEnd = (e: TransitionEvent) => {
+      // Only react to the panel's own size/opacity transition, not bubbling child transitions.
+      if (e.target === panel) correct()
+    }
+
+    panel?.addEventListener("transitionend", onEnd)
+    // Fallback in case transitionend does not fire (e.g. grid-template-rows not animatable).
+    timerId.current = window.setTimeout(correct, EXPAND_DURATION + 80)
+
+    cleanupListener.current = () => {
+      panel?.removeEventListener("transitionend", onEnd)
+      if (timerId.current !== undefined) {
+        clearTimeout(timerId.current)
+        timerId.current = undefined
+      }
+    }
   }
 
   const handleToggle = (company: string, isOpen: boolean) => {
@@ -172,9 +206,11 @@ export function ExperienceTimeline() {
       return
     }
     if (isMobile()) {
-      // One mechanism only: expand, let it settle, then a single alignment.
+      // Record the tapped header's viewport position BEFORE the state change so we can restore it.
+      const el = articleRefs.current[company]
+      const originalTop = el ? el.getBoundingClientRect().top : HEADER_OFFSET
       setOpen(company)
-      alignAfterSettle(company)
+      alignAfterExpand(company, originalTop)
       return
     }
     // Desktop: measure the header position *before* the state change so we can keep it steady.
@@ -210,7 +246,10 @@ export function ExperienceTimeline() {
   useEffect(() => cancelScroll, [])
 
   return (
-    <div className="flex flex-col">
+    // `max-md:[overflow-anchor:none]` disables CSS scroll anchoring on mobile so expanding a
+    // chapter never causes the browser to jump the viewport down toward the growing content.
+    // Desktop keeps default anchoring (its per-frame pin loop already governs position).
+    <div className="flex flex-col max-md:[overflow-anchor:none]">
       {companies.map((c, i) => {
         const isOpen = open === c.company
         const panelId = `chapter-${c.company.replace(/[^a-z0-9]/gi, "").toLowerCase()}`
@@ -252,6 +291,7 @@ export function ExperienceTimeline() {
 
             <div
               id={panelId}
+              data-chapter-panel=""
               className={`grid transition-all duration-500 ease-out ${
                 isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
               }`}
